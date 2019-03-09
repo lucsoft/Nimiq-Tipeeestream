@@ -8,28 +8,32 @@
         //Definetly not copied from anywhere
         $(document).ready(function () {
 
-            $("button").click(function () {
+            $("form").submit(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-                $.post("http://localhost:3000/login", {
+                var form = $(this);
+                var autist = form.serialize();
 
-                        user: document.getElementById("user").value,
-                        amount: document.getElementById("amount").value
-                    },
-                    function (data, status) {
-                        window.location.href = data;
+                $.ajax({
+                    url: 'http://localhost:3000/newdonation',
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function (data) {
+                        window.location = `https://safe.nimiq.com/#/_new-transaction/${data.address}/recipient/${data.amount}/${data.nimiqMsg}_`;
                     }
-                );
+                });
             });
         });
     </script>
 </head>
 
 <body>
-    <input id="user">
-    <input id="amount">
-
-    <button>Send donation!</button>
-
+    <form method="POST">
+        <input id="user" name="user" placeholder="Your Name"><br>
+        <input id="amount" name="amount" placeholder="Amount">NIM <br>
+        <button type="submit">Submit</button>
+    </form>
 </body>
 
 </html>

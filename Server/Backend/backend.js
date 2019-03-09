@@ -15,15 +15,20 @@ app.use(function (req, res, next) {
     next()
 })
 
-app.post('/login', urlencodedParser, function (req, res) {
+app.post('/newdonation', urlencodedParser, async function (req, res) {
 
     console.log(req.body);
 
     var nimiqMsg = crypto.createHmac("sha256", (JSON.stringify(req.body) + " " + Date.now()).toString()).digest('hex');
-    var kiddy = db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp) VALUES (?, ?, ?, ?)").run(nimiqMsg, req.body.user, req.body.amount, Date.now());
-    
-    res.send(`https://safe.nimiq.com/#/_new-transaction/${config.address}/recipient/${req.body.amount}/${nimiqMsg}_`);
-}); 
+    var kiddy = await db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp) VALUES (?, ?, ?, ?)").run(nimiqMsg, req.body.user, req.body.amount, Date.now());
+
+    res.json({
+        success: true,
+        address: config.address.replace(/\s/g, ''),
+        amount: req.body.amount,
+        nimiqMsg: nimiqMsg
+    });
+});
 
 app.listen(3000, function () {
     console.log("Started on PORT 3000");
