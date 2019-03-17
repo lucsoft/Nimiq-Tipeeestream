@@ -2,3 +2,4 @@
 config.json
 donations.db
 .vscode/settings.json
+.vscode/launch.json
