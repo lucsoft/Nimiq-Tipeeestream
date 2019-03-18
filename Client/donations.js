@@ -1,5 +1,5 @@
 const request = require("request");
-const config = require("./../config.json");
+const config = require("./config.json");
 const db = require("better-sqlite3")("./../donations.db");
 
 var c_transactions = [];
@@ -59,6 +59,13 @@ function checkDonationArrived() {
             delete c_donations[o_donation];
         }
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+if(!config.tipeeeapikey){
+    return alert("Bitte füge deinen Tipeeestream API-Key in die config.json-Datei ein.");
+}else{
+    alert(config.tipeeeapikey);
 }
 
 loadAccountTransactions();
