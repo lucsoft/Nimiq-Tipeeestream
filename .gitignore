@@ -1,5 +1,7 @@
-/node_modules
 config.json
 donations.db
 .vscode/settings.json
 .vscode/launch.json
+Server/Backend/node_modules
+Client/node_modules
+Server/Backend/streamers.json
