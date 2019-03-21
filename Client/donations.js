@@ -1,6 +1,6 @@
 const request = require("request");
 const config = require("./config.json");
-const db = require("better-sqlite3")("./../donations.db");
+const db = require("better-sqlite3")("./donations.db");
 
 var c_transactions = [];
 var c_donations = [];
@@ -19,7 +19,13 @@ class cl_donation {
     }
 }
 
-function loadAccountTransactions() {
+function requestNIMPrice() {
+    request.get("https://api.coincap.io/v2/assets/nimiq", null, function (err, response, body) {
+        nimiqusd = JSON.parse(body).data.priceUsd;
+    });
+}
+
+function requestAddressTransactions() {
     request.get(`https://api.nimiqx.com/account-transactions/${config.address}/2?api_key=${config.nimiqxapikey}`, null, function (err, response, body) {
         var transactions = JSON.parse(body);
 
@@ -31,18 +37,26 @@ function loadAccountTransactions() {
     })
 }
 
-function loadDonations() {
+async function requestNewDonations(){
+    var stricker = await new Promise(function (resolve, reject) {
+        request.get("http://localhost:3000/getnewdonations?apikey=71cdfa32087e4c9906d405c7de8baeeaeeefc6edc4513e157a7be1c958c0c7e9&date=0", function (err, response, body) {
+            if (!err && response.statusCode == 200) {
+                resolve(body);
+            } else {
+                reject(err);
+            }
+        });
+    });
+    console.log(JSON.parse(stricker)[0]);
+    db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(JSON.parse(stricker)[0]);
+}
+
+function loadDonationsDB() {
     var donations = db.prepare("SELECT * FROM donations WHERE done IS null").all();
     for (donation in donations) {
         var o_donation = new cl_donation(donations[donation]);
         c_donations[o_donation.data.nimiqmsg] = o_donation;
     }
-}
-
-function loadNimiqPrice() {
-    request.get("https://api.coincap.io/v2/assets/nimiq", null, function (err, response, body) {
-        nimiqusd = JSON.parse(body).data.priceUsd;
-    });
 }
 
 function checkDonationArrived() {
@@ -62,20 +76,22 @@ function checkDonationArrived() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-if(!config.tipeeeapikey){
+if (!config.tipeeeapikey) {
     return alert("Bitte füge deinen Tipeeestream API-Key in die config.json-Datei ein.");
-}else{
+} else {
     alert(config.tipeeeapikey);
 }
 
-loadAccountTransactions();
-loadDonations();
-loadNimiqPrice();
+requestNewDonations();
+requestAccountTransactions();
+loadDonationsDB();
+requestNimiqPrice();
 checkDonationArrived();
 
 setInterval(function () {
-    loadAccountTransactions();
+    requestNewDonations()
+    requestAccountTransactions();
     loadDonations();
-    loadNimiqPrice();
+    requestNimiqPriceDB();
     checkDonationArrived();
 }, 300000);

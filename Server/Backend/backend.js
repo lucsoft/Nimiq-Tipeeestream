@@ -32,12 +32,8 @@ app.post('/newdonation', urlencodedParser, async function (req, res) {
 });
 
 app.get('/getnewdonations', urlencodedParser, async function (req, res){
-    
-    console.log(req.query.apikey);
     var streamer = streamers[crypto.createHmac("sha256", req.query.apikey).digest('hex')];
-    console.log(crypto.createHmac("sha256", req.query.apikey).digest('hex'));
-    var donations = await db.prepare("SELECT * FROM donations WHERE (streamer) = (?) ").all(streamer);
-    console.log(streamer);
+    var donations = await db.prepare("SELECT * FROM donations WHERE (streamer) = (?) AND (timestamp) > (?)").all(streamer, req.query.date);
     res.send(donations);
 })
 
