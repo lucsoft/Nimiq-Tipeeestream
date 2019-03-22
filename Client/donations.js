@@ -8,6 +8,8 @@ var c_donations = [];
 
 var nimiqusd;
 
+var syncstatus;
+
 class cl_transaction {
     constructor(data) {
         this.data = data;
@@ -50,10 +52,15 @@ async function requestNewDonations(){
     });
     console.log(JSON.parse(stricker));
     for(deimudda in JSON.parse(stricker)){
-        console.log("Importing Donation #" + deimudda);
+        syncstatus = deimudda;
+        console.log("Syncing: " + (parseInt(deimudda) + 1));
         db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(JSON.parse(stricker)[deimudda]);
     }
 }
+
+setInterval(function(){
+        document.getElementById('syncstatus').innerHTML = syncstatus;
+}, 1000);
 
 function loadDonationsDB() {
     var donations = db.prepare("SELECT * FROM donations WHERE done IS null").all();
@@ -88,14 +95,14 @@ if (!config.tipeeeapikey) {
 }
 
 requestNewDonations();
-requestAccountTransactions();
+requestAddressTransactions();
 loadDonationsDB();
 requestNimiqPrice();
 checkDonationArrived();
 
 setInterval(function () {
     requestNewDonations()
-    requestAccountTransactions();
+    requestAddressTransactions();
     loadDonations();
     requestNimiqPriceDB();
     checkDonationArrived();
