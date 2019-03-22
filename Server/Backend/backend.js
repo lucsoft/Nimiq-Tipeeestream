@@ -6,6 +6,8 @@ const config = require("./../../config.json");
 const streamers = require("./streamers.json");
 var app = express();
 
+db.pragma('journal_mode = WAL');
+
 let urlencodedParser = bodyParser.urlencoded({
     extended: true
 });
@@ -18,7 +20,7 @@ app.use(function (req, res, next) {
 
 app.post('/newdonation', urlencodedParser, async function (req, res) {
 
-    var nimiqMsg = crypto.createHmac("sha256", (JSON.stringify(req.body) + " " + Date.now()).toString()).digest('hex');
+    var nimiqMsg = crypto.createHmac("sha256", (JSON.stringify(req.body) + " " + Date.now() + Math.random(100000)).toString()).digest('hex');
     
     //ToDo: Check for missing values / fail values
     await db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer) VALUES (?, ?, ?, ?, ?)").run(nimiqMsg, req.body.user, req.body.amount, Date.now(), req.body.streamer);

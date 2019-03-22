@@ -2,6 +2,7 @@ const request = require("request");
 const config = require("./config.json");
 const db = require("better-sqlite3")("./donations.db");
 
+
 var c_transactions = [];
 var c_donations = [];
 
@@ -47,13 +48,17 @@ async function requestNewDonations(){
             }
         });
     });
-    console.log(JSON.parse(stricker)[0]);
-    db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(JSON.parse(stricker)[0]);
+    console.log(JSON.parse(stricker));
+    for(deimudda in JSON.parse(stricker)){
+        console.log("Importing Donation #" + deimudda);
+        db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(JSON.parse(stricker)[deimudda]);
+    }
 }
 
 function loadDonationsDB() {
     var donations = db.prepare("SELECT * FROM donations WHERE done IS null").all();
     for (donation in donations) {
+        
         var o_donation = new cl_donation(donations[donation]);
         c_donations[o_donation.data.nimiqmsg] = o_donation;
     }
