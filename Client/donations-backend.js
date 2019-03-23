@@ -5,6 +5,7 @@ const db = require("better-sqlite3")("./donations.db");
 var c_transactions = [];
 var c_donations = [];
 
+
 var nimiqusd;
 
 var syncstatus;
@@ -39,8 +40,9 @@ function requestAddressTransactions() {
     })
 }
 
-async function requestNewDonations(){
+async function requestNewDonations() {
     var stricker = await new Promise(function (resolve, reject) {
+        //This api key has no function sorry :(
         request.get("http://localhost:3000/getnewdonations?apikey=71cdfa32087e4c9906d405c7de8baeeaeeefc6edc4513e157a7be1c958c0c7e9&date=0", function (err, response, body) {
             if (!err && response.statusCode == 200) {
                 resolve(body);
@@ -49,9 +51,9 @@ async function requestNewDonations(){
             }
         });
     });
-    console.log(JSON.parse(stricker));
-    for(deimudda in JSON.parse(stricker)){
-        console.log("Syncing: " + (parseInt(deimudda) + 1));
+    for (deimudda in JSON.parse(stricker)) {
+        process.send("Syncing: " + (parseInt(deimudda) + 1));
+        console.log("moin");
         db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(JSON.parse(stricker)[deimudda]);
     }
 }
@@ -59,7 +61,7 @@ async function requestNewDonations(){
 function loadDonationsDB() {
     var donations = db.prepare("SELECT * FROM donations WHERE done IS null").all();
     for (donation in donations) {
-        
+
         var o_donation = new cl_donation(donations[donation]);
         c_donations[o_donation.data.nimiqmsg] = o_donation;
     }
@@ -85,17 +87,18 @@ function checkDonationArrived() {
 if (!config.tipeeeapikey) {
     return alert("Bitte füge deinen Tipeeestream API-Key in die config.json-Datei ein.");
 } else {
-    alert(config.tipeeeapikey);
+    //ToDo: IPC
+    //alert(config.tipeeeapikey);
 }
 
-//requestNewDonations();
+requestNewDonations();
 requestAddressTransactions();
 loadDonationsDB();
 requestNIMPrice();
 checkDonationArrived();
 
 setInterval(function () {
-    //requestNewDonations()
+    requestNewDonations()
     requestAddressTransactions();
     loadDonations();
     requestNIMPriceDB();
