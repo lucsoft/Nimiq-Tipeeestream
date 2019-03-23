@@ -5,3 +5,6 @@ donations.db
 Server/Backend/node_modules
 Client/node_modules
 Server/Backend/streamers.json
+donations.db-shm
+donations.db-wal
+Server/Backend/abfucker.js

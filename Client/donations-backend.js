@@ -5,10 +5,7 @@ const db = require("better-sqlite3")("./donations.db");
 var c_transactions = [];
 var c_donations = [];
 
-
 var nimiqusd;
-
-var syncstatus;
 
 class cl_transaction {
     constructor(data) {
@@ -41,7 +38,7 @@ function requestAddressTransactions() {
 }
 
 async function requestNewDonations() {
-    var stricker = await new Promise(function (resolve, reject) {
+    var newDonations = await new Promise(function (resolve, reject) {
         //This api key has no function sorry :(
         request.get("http://localhost:3000/getnewdonations?apikey=71cdfa32087e4c9906d405c7de8baeeaeeefc6edc4513e157a7be1c958c0c7e9&date=0", function (err, response, body) {
             if (!err && response.statusCode == 200) {
@@ -51,10 +48,10 @@ async function requestNewDonations() {
             }
         });
     });
-    for (deimudda in JSON.parse(stricker)) {
-        process.send("Syncing: " + (parseInt(deimudda) + 1));
+    for (donation in JSON.parse(newDonations)) {
+        process.send("Syncing: " + (parseInt(donation) + 1));
         console.log("moin");
-        db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(JSON.parse(stricker)[deimudda]);
+        db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(JSON.parse(newDonations)[donation]);
     }
 }
 
@@ -85,7 +82,8 @@ function checkDonationArrived() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 if (!config.tipeeeapikey) {
-    return alert("Bitte füge deinen Tipeeestream API-Key in die config.json-Datei ein.");
+    //ToDo: IPC
+    //return alert("Bitte füge deinen Tipeeestream API-Key in die config.json-Datei ein.");
 } else {
     //ToDo: IPC
     //alert(config.tipeeeapikey);
