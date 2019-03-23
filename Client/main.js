@@ -1,4 +1,5 @@
 const {app, BrowserWindow} = require('electron');
+const cp = require('child_process');
 
 let mainWindow;
 let authWindow;
@@ -34,3 +35,5 @@ app.on('activate', function () {
     createWindow()
   }
 })
+
+cp.fork("./donations-backend.js");
