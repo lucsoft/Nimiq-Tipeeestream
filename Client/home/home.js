@@ -1,7 +1,19 @@
-const request = require("request");
-const config = require("./config.json");
-const db = require("better-sqlite3")("./donations.db");
+process.on('uncaughtException', function(err){
+    process.send("[FATAL DUMMHEIT]; " + err);
+})
 
+process.on('unhandledRejection', function(err){
+    process.send("[FATAL DUMMHEIT]; " + err);
+})
+
+process.on('warning', function(warn){
+    process.send("[WARNING]; " + warn);
+});
+
+const request = require("request");
+const config = require("./../config.json");
+const db = require("better-sqlite3")("./donations.db");
+ 
 var c_transactions = [];
 var c_donations = [];
 
@@ -25,8 +37,8 @@ function requestNIMPrice() {
     });
 }
 
-function requestAddressTransactions() {
-    request.get(`https://api.nimiqx.com/account-transactions/${config.address}/2?api_key=${config.nimiqxapikey}`, null, function (err, response, body) {
+ function requestAddressTransactions() {
+    /*request.get(`https://api.nimiqx.com/account-transactions/${config.address}/2?api_key=${config.nimiqxapikey}`, null, function (err, response, body) {
         var transactions = JSON.parse(body);
 
         for (tx in transactions) {
@@ -34,8 +46,8 @@ function requestAddressTransactions() {
             c_transactions[o_transaction.data.message] = o_transaction;
             console.log(o_transaction.data.message)
         }
-    })
-}
+    })*/
+} 
 
 async function requestNewDonations() {
     var newDonations = await new Promise(function (resolve, reject) {
@@ -80,14 +92,13 @@ function checkDonationArrived() {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
 if (!config.tipeeeapikey) {
-    //ToDo: IPC
-    //return alert("Bitte füge deinen Tipeeestream API-Key in die config.json-Datei ein.");
-} else {
-    //ToDo: IPC
-    //alert(config.tipeeeapikey);
+    process.send("[REDIRECT];./../setup/index.html");
+    return;
+    } else {
 }
+
 
 requestNewDonations();
 requestAddressTransactions();
