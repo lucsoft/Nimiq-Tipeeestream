@@ -1,19 +1,22 @@
-const {app, BrowserWindow} = require('electron');
+const {
+  app,
+  BrowserWindow
+} = require('electron');
 
 let mainWindow;
 let authWindow;
 
-function createWindow () {
+function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     webPreferences: {
       nodeIntegration: true
     }
   })
 
   mainWindow.loadFile('./home/index.html');
-  
+
   mainWindow.webContents.openDevTools()
 
   mainWindow.on('closed', function () {
