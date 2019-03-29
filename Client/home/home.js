@@ -12,8 +12,6 @@ process.on('warning', function (warn) {
 
 const request = require("request");
 const config = require(`${__dirname}/../config.json`);
-const messages = require(`${__dirname}/../config.json`);
-const db = require("better-sqlite3")(`${__dirname}/../donations.json`);
 
 var c_transactions = [];
 var c_donations = [];
