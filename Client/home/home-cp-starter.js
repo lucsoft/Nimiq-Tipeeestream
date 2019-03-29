@@ -7,10 +7,6 @@ child.on('message', message => {
     console.log(message);
     alert(message);
   } else if (message.split(";")[0] == "[REDIRECT]") {
-
-
-
-    console.log(message.split(";")[1])
     window.location.href = message.split(";")[1];
   } else if (message.startsWith('Syncing')) {
     console.log(message);

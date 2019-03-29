@@ -12,6 +12,8 @@ process.on('warning', function (warn) {
 
 const request = require("request");
 const config = require(`${__dirname}/../config.json`);
+const messages = require(`${__dirname}/../messages.json`);
+const db = require("better-sqlite3")(`${__dirname}/../donations.db`);
 
 var c_transactions = [];
 var c_donations = [];
@@ -49,20 +51,28 @@ function requestAddressTransactions() {
 }
 
 async function requestNewDonations() {
+    var date = [];
+    date = await db.prepare("SELECT timestamp FROM donations ORDER BY timestamp desc LIMIT 1").all();
+    if (date.length == 0) {
+        date[0] = {
+            "timestamp": 0
+        }
+    }
+
     var newDonations = await new Promise(function (resolve, reject) {
         //This api key has no function sorry :(
-        request.get("http://localhost:3000/getnewdonations?apikey=71cdfa32087e4c9906d405c7de8baeeaeeefc6edc4513e157a7be1c958c0c7e9&date=0", function (err, response, body) {
+        request.get(`http://localhost:3000/getnewdonations?apikey=71cdfa32087e4c9906d405c7de8baeeaeeefc6edc4513e157a7be1c958c0c7e9&date=${date[0].timestamp}`, function (err, response, body) {
             if (!err && response.statusCode == 200) {
                 resolve(body);
             } else {
-                reject(message.noconnectiontoserver);
+                reject(messages.noconnectiontoserver);
             }
         });
     });
-    for (donation in JSON.parse(newDonations)) {
-        process.send("Syncing: " + (parseInt(donation) + 1));
-        console.log("moin");
-        db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(JSON.parse(newDonations)[donation]);
+    var newDonations = JSON.parse(newDonations);
+    for (donation in newDonations) {
+        process.send("Syncing: " + (new Date(newDonations[donation].timestamp)).toISOString());
+        db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(newDonations[donation]);
     }
 }
 
