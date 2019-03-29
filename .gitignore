@@ -4,6 +4,7 @@ donations.db
 .vscode/launch.json
 Server/Backend/node_modules
 Client/node_modules
+Client/electron-quick-start-win32-x64
 Server/Backend/streamers.json
 donations.db-shm
 donations.db-wal

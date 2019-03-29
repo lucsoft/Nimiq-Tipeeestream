@@ -11,9 +11,9 @@ process.on('warning', function (warn) {
 });
 
 const request = require("request");
-const config = require("./../config.json");
-const messages = require("./../messages.json");
-const db = require("better-sqlite3")("./donations.db");
+const config = require(`${__dirname}/../config.json`);
+const messages = require(`${__dirname}/../config.json`);
+const db = require("better-sqlite3")(`${__dirname}/../donations.json`);
 
 var c_transactions = [];
 var c_donations = [];
@@ -95,9 +95,11 @@ function checkDonationArrived() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 if (!config.tipeeeapikey) {
-    process.send("[REDIRECT];./../setup/index.html");
+    process.send(`[REDIRECT];${__dirname}/../setup/index.html`);
     return;
-} else {}
+} else {
+
+}
 
 
 requestNewDonations();

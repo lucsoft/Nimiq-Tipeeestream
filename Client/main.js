@@ -15,7 +15,7 @@ function createWindow() {
     }
   })
 
-  mainWindow.loadFile('./home/index.html');
+  mainWindow.loadFile(`${__dirname}/home/index.html`);
 
   mainWindow.webContents.openDevTools()
 
