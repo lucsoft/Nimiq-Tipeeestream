@@ -13,12 +13,13 @@
                 e.stopPropagation();
 
                 var form = $(this);
-                var autist = form.serialize();
+                var autist = form.serialize() + "&streamer=" + window.location.href.split("?streamer=")[1];
+                alert(autist);
 
                 $.ajax({
-                    url: 'http://localhost:3000/newdonation',
-                    type: 'POST',
-                    data: form.serialize(),
+                    url: "http://localhost:3000/newdonation",
+                    type: "POST",
+                    data: form.serialize() + "&streamer=" + window.location.href.split("?streamer=")[1],
                     success: function (data) {
                         window.location = `https://safe.nimiq.com/#/_new-transaction/${data.address}/recipient/${data.amount}/${data.nimiqMsg}_`;
                     }
