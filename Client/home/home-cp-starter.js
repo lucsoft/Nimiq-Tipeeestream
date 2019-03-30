@@ -10,6 +10,7 @@ child.on("message", function (msg) {
 
 emitter.on("sync-complete", function (msg) {
   document.getElementById("syncstatus").style.display = "none";
+  document.getElementById("donations").style.visibility = "visible";
 })
 
 emitter.on("redirect", function (msg) {
@@ -18,7 +19,7 @@ emitter.on("redirect", function (msg) {
 
 emitter.on("syncing", function (msg) {
   console.log(msg);
-  document.getElementById("syncstatus").innerHTML = msg;
+  document.getElementById("syncstatus").innerHTML = "Syncing: @" + msg;
 });
 
 emitter.on("message", function (msg) {
