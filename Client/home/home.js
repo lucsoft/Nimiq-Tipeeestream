@@ -102,7 +102,7 @@ function checkDonationArrived() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 if (!config.tipeeeapikey || !config.nimiqxapikey || !config.address) {
-    process.send(`[REDIRECT];${__dirname}/../setup/index.html`);
+    process.send(`[REDIRECT];${__dirname}/../settings/index.html`);
     return;
 }
 
@@ -118,4 +118,4 @@ setInterval(function () {
     loadDonationsDB();
     requestNIMPrice();
     checkDonationArrived();
-}, 300000);
+}, 30000);
