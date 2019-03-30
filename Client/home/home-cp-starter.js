@@ -4,7 +4,10 @@ const emitter = new EventEmitter();
 
 var child = cp.fork(`${__dirname}/home.js`);
 
+var donationstable = "<tr><th>Date</th><th>Username</th><th>Amount</th></tr>";
+
 child.on("message", function (msg) {
+  alert(JSON.stringify(msg));
   emitter.emit(msg.eventType, msg.body);
 })
 
@@ -24,6 +27,13 @@ emitter.on("syncing", function (msg) {
 
 emitter.on("message", function (msg) {
   alert(message);
+})
+
+emitter.on("donation-arrived", function (msg) {
+  alert(donationstable);
+  var msg = JSON.parse(msg);
+  donationstable = donationstable + "<tr><th>" + msg.timestamp + "</th><th>" + msg.user + "</th><th>" + msg.amount + "</th></tr>";
+  document.getElementById("content").innerHTML = donationstable;
 })
 
 child.on("error", error => {

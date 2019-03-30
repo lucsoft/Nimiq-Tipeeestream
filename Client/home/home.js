@@ -1,7 +1,9 @@
+///////////////////////// SEND ERRORS TO PARENT /////////////////////////
 process.on("uncaughtException", function (err) {
+    process.send(err);
     process.send({
         "eventType": "error",
-        "body": err
+        "body": "FATAL ERROR OCCOURED" //why can't I pass the error msg??
     });
 })
 
@@ -19,16 +21,27 @@ process.on("warning", function (warn) {
     });
 });
 
+
+
+
+
+///////////////////////// LOAD MODULES /////////////////////////
 const request = require("request");
 const config = require(`${__dirname}/../config.json`);
 const messages = require(`${__dirname}/../messages.json`);
 const db = require("better-sqlite3")(`${__dirname}/../donations.db`);
 
+
+
+
+
+///////////////////////// VARIABLES /////////////////////////
 var c_transactions = [];
 var c_donations = [];
 
 var nimiqusd;
 
+///////////////////////// CLASSES /////////////////////////
 class cl_transaction {
     constructor(data) {
         this.data = data;
@@ -41,6 +54,11 @@ class cl_donation {
     }
 }
 
+
+
+
+
+///////////////////////// FUNCTIONS /////////////////////////
 function requestNIMPrice() {
     request.get("https://api.coincap.io/v2/assets/nimiq", null, function (err, response, body) {
         nimiqusd = JSON.parse(body).data.priceUsd;
@@ -48,7 +66,7 @@ function requestNIMPrice() {
 }
 
 function requestAddressTransactions() {
-    /* request.get(`https://api.nimiqx.com/account-transactions/${config.address}/2?api_key=${config.nimiqxapikey}`, null, function (err, response, body) {
+    request.get(`https://api.nimiqx.com/account-transactions/${config.address}/2?api_key=${config.nimiqxapikey}`, null, function (err, response, body) {
         var transactions = JSON.parse(body);
 
         for (tx in transactions) {
@@ -56,7 +74,8 @@ function requestAddressTransactions() {
             c_transactions[o_transaction.data.message] = o_transaction;
             console.log(o_transaction.data.message)
         }
-    }) */
+    })
+
 }
 
 async function requestNewDonations() {
@@ -90,7 +109,6 @@ async function requestNewDonations() {
         "eventType": "sync-complete",
         "body": ""
     })
-
 }
 
 async function loadDonationsDB() {
@@ -101,26 +119,36 @@ async function loadDonationsDB() {
     }
 }
 
-function checkDonationArrived() {
+async function checkDonationArrived() {
     for (o_donation in c_donations) {
         if (c_transactions[c_donations[o_donation].data.nimiqmsg]) {
             var o_transaction = c_transactions[c_donations[o_donation].data.nimiqmsg];
             process.send({
-                "eventType": "message",
-                "body": "Donation arrived!"
+                "eventType": "donation-arrived",
+                "body": JSON.stringify(c_donations[o_donation].data)
             });
             request.post({
                 url: `https://api.tipeeestream.com/v1.0/users/einfachalexyt/events.json?apiKey=${config.tipeeeapikey}&type=donation&params[username]=[Nimiq]${c_donations[o_donation].data.user}&params[amount]=${(o_transaction.data.value) / 10000 * nimiqusd}&params[currency]=USD`,
             }, function (err, response, body) {
                 console.log(body);
             });
-            db.prepare("UPDATE donations SET done = 'X' WHERE (nimiqmsg) IS (?)").run(c_donations[o_donation].data.nimiqmsg);
+            await db.prepare("UPDATE donations SET done = 'X' WHERE (nimiqmsg) IS (?)").run(c_donations[o_donation].data.nimiqmsg);
+            process.send(c_donations);
             delete c_donations[o_donation];
+            delete c_transactions[o_transaction];
+            process.send(c_donations);
         }
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
+//ToDo: show donations at startup
+/* function buildDonationsTable() {
+    for (donation in c_donations) {
+
+    }
+} */
+
+///////////////////////// EXECUTE CODE /////////////////////////
 if (!config.tipeeeapikey || !config.nimiqxapikey || !config.address || !config.einfachmcapikey || JSON.stringify(config).includes("undefined")) {
     process.send({
         "eventType": "redirect",
@@ -135,10 +163,10 @@ loadDonationsDB();
 requestNIMPrice();
 checkDonationArrived();
 
-setInterval(function () {
+setInterval(async function () {
     requestNewDonations()
     requestAddressTransactions();
-    loadDonationsDB();
     requestNIMPrice();
-    checkDonationArrived();
+    await checkDonationArrived();
+    loadDonationsDB();
 }, 30000);
