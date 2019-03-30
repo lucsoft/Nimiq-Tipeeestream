@@ -29,6 +29,11 @@ function openTab(link) {
     }
 }
 
+document.getElementsByName("tipeeeapikey")[0].value = config.tipeeeapikey;
+document.getElementsByName("nimiqxapikey")[0].value = config.nimiqxapikey;
+document.getElementsByName("einfachmcapikey")[0].value = config.einfachmcapikey;
+document.getElementsByName("address")[0].value = config.address;
+
 document.getElementById('submit').addEventListener('click', submit);
 
 document.getElementById('tipeeelink').addEventListener('click', function () {
