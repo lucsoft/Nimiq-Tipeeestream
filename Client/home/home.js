@@ -1,13 +1,22 @@
 process.on('uncaughtException', function (err) {
-    process.send("[FATAL DUMMHEIT]; " + err);
+    process.send({
+        "eventType": "error",
+        "body": err
+    });
 })
 
 process.on('unhandledRejection', function (err) {
-    process.send("[FATAL DUMMHEIT]; " + err);
+    process.send({
+        "eventType": "error",
+        "body": err
+    });
 })
 
 process.on('warning', function (warn) {
-    process.send("[WARNING]; " + warn);
+    process.send({
+        "eventType": "warning",
+        "body": warn
+    });
 });
 
 const request = require("request");
@@ -71,9 +80,17 @@ async function requestNewDonations() {
     });
     var newDonations = JSON.parse(newDonations);
     for (donation in newDonations) {
-        process.send("Syncing: " + (new Date(newDonations[donation].timestamp)).toISOString());
+        process.send({
+            "eventType": "syncing",
+            "body": new Date(newDonations[donation].timestamp).toISOString();
+        });
         db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(newDonations[donation]);
     }
+    process.send({
+        "eventType": "sync-complete",
+        "body": ""
+    })
+
 }
 
 async function loadDonationsDB() {
@@ -88,7 +105,10 @@ function checkDonationArrived() {
     for (o_donation in c_donations) {
         if (c_transactions[c_donations[o_donation].data.nimiqmsg]) {
             var o_transaction = c_transactions[c_donations[o_donation].data.nimiqmsg];
-            process.send("Donation arrived!");
+            process.send({
+                "eventType": "message",
+                "body": "Donation arrived!"
+            });
             request.post({
                 url: `https://api.tipeeestream.com/v1.0/users/einfachalexyt/events.json?apiKey=${config.tipeeeapikey}&type=donation&params[username]=[Nimiq]${c_donations[o_donation].data.user}&params[amount]=${(o_transaction.data.value) / 10000 * nimiqusd}&params[currency]=USD`,
             }, function (err, response, body) {
@@ -102,7 +122,10 @@ function checkDonationArrived() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 if (!config.tipeeeapikey || !config.nimiqxapikey || !config.address || !config.einfachmcapikey || JSON.stringify(config).includes("undefined")) {
-    process.send(`[REDIRECT];${__dirname}/../settings/index.html`);
+    process.send({
+        "eventType": "redirect",
+        "body": `${__dirname}/../settings/index.html`
+    });
     return;
 }
 
