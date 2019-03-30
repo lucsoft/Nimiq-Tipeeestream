@@ -89,7 +89,7 @@ async function requestNewDonations() {
 
     var newDonations = await new Promise(function (resolve, reject) {
         //This api key has no function sorry :(
-        request.get(`http://localhost:3000/getnewdonations?apikey=${config.einfachmcapikey}&date=${date[0].timestamp}`, function (err, response, body) {
+        request.get(`https://einfachmc.de:3000/getnewdonations?apikey=${config.einfachmcapikey}&date=${date[0].timestamp}`, function (err, response, body) {
             if (!err && response.statusCode == 200) {
                 resolve(body);
             } else {
