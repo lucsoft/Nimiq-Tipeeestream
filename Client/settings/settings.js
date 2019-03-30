@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 const config = require("./../config.json");
 const shell = require("electron").shell;
 
@@ -34,20 +34,20 @@ document.getElementsByName("nimiqxapikey")[0].value = config.nimiqxapikey;
 document.getElementsByName("einfachmcapikey")[0].value = config.einfachmcapikey;
 document.getElementsByName("address")[0].value = config.address;
 
-document.getElementById('submit').addEventListener('click', submit);
+document.getElementById("submit").addEventListener("click", submit);
 
-document.getElementById('tipeeelink').addEventListener('click', function () {
+document.getElementById("tipeeelink").addEventListener("click", function () {
     openTab("tipeee");
 });
 
-document.getElementById('nimiqxlink').addEventListener('click', function () {
+document.getElementById("nimiqxlink").addEventListener("click", function () {
     openTab("nimiqx");
 });
 
-document.getElementById('safelink').addEventListener('click', function () {
+document.getElementById("safelink").addEventListener("click", function () {
     openTab("safe");
 });
 
-document.getElementById('discordlink').addEventListener('click', function () {
+document.getElementById("discordlink").addEventListener("click", function () {
     openTab("discord");
 });

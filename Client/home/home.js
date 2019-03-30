@@ -1,18 +1,18 @@
-process.on('uncaughtException', function (err) {
+process.on("uncaughtException", function (err) {
     process.send({
         "eventType": "error",
         "body": err
     });
 })
 
-process.on('unhandledRejection', function (err) {
+process.on("unhandledRejection", function (err) {
     process.send({
         "eventType": "error",
         "body": err
     });
 })
 
-process.on('warning', function (warn) {
+process.on("warning", function (warn) {
     process.send({
         "eventType": "warning",
         "body": warn
@@ -48,7 +48,7 @@ function requestNIMPrice() {
 }
 
 function requestAddressTransactions() {
-    request.get(`https://api.nimiqx.com/account-transactions/${config.address}/2?api_key=${config.nimiqxapikey}`, null, function (err, response, body) {
+    /* request.get(`https://api.nimiqx.com/account-transactions/${config.address}/2?api_key=${config.nimiqxapikey}`, null, function (err, response, body) {
         var transactions = JSON.parse(body);
 
         for (tx in transactions) {
@@ -56,7 +56,7 @@ function requestAddressTransactions() {
             c_transactions[o_transaction.data.message] = o_transaction;
             console.log(o_transaction.data.message)
         }
-    })
+    }) */
 }
 
 async function requestNewDonations() {
@@ -114,7 +114,7 @@ function checkDonationArrived() {
             }, function (err, response, body) {
                 console.log(body);
             });
-            db.prepare("UPDATE donations SET done = 'X' WHERE (nimiqmsg) IS (?)").run(c_donations[o_donation].data.nimiqmsg);
+            db.prepare("UPDATE donations SET done = "X" WHERE (nimiqmsg) IS (?)").run(c_donations[o_donation].data.nimiqmsg);
             delete c_donations[o_donation];
         }
     }
