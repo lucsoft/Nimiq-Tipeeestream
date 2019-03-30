@@ -82,7 +82,7 @@ async function requestNewDonations() {
     for (donation in newDonations) {
         process.send({
             "eventType": "syncing",
-            "body": new Date(newDonations[donation].timestamp).toISOString();
+            "body": new Date(newDonations[donation].timestamp).toISOString()
         });
         db.prepare("INSERT INTO donations (nimiqmsg, user, amount, timestamp, streamer, done) VALUES (@nimiqmsg, @user, @amount, @timestamp, @streamer, @done)").run(newDonations[donation]);
     }
@@ -114,7 +114,7 @@ function checkDonationArrived() {
             }, function (err, response, body) {
                 console.log(body);
             });
-            db.prepare("UPDATE donations SET done = "X" WHERE (nimiqmsg) IS (?)").run(c_donations[o_donation].data.nimiqmsg);
+            db.prepare("UPDATE donations SET done = 'X' WHERE (nimiqmsg) IS (?)").run(c_donations[o_donation].data.nimiqmsg);
             delete c_donations[o_donation];
         }
     }
