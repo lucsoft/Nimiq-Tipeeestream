@@ -5,6 +5,7 @@ const shell = require("electron").shell;
 function submit() {
     config.tipeeeapikey = document.getElementsByName("tipeeeapikey")[0].value;
     config.nimiqxapikey = document.getElementsByName("nimiqxapikey")[0].value;
+    config.einfachmcapikey = document.getElementsByName("einfachmcapikey")[0].value;
     config.address = document.getElementsByName("address")[0].value;
 
     fs.writeFileSync("./config.json", JSON.stringify(config, null, 4));
@@ -23,6 +24,8 @@ function openTab(link) {
         case "safe":
             shell.openExternal("https://safe.nimiq.com");
             break;
+        case "discord":
+            shell.openExternal("https://discord.gg/HDgyBa6");
     }
 }
 
@@ -38,4 +41,8 @@ document.getElementById('nimiqxlink').addEventListener('click', function () {
 
 document.getElementById('safelink').addEventListener('click', function () {
     openTab("safe");
+});
+
+document.getElementById('discordlink').addEventListener('click', function () {
+    openTab("discord");
 });
