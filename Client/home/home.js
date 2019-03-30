@@ -39,7 +39,7 @@ function requestNIMPrice() {
 }
 
 function requestAddressTransactions() {
-    /*request.get(`https://api.nimiqx.com/account-transactions/${config.address}/2?api_key=${config.nimiqxapikey}`, null, function (err, response, body) {
+    request.get(`https://api.nimiqx.com/account-transactions/${config.address}/2?api_key=${config.nimiqxapikey}`, null, function (err, response, body) {
         var transactions = JSON.parse(body);
 
         for (tx in transactions) {
@@ -47,7 +47,7 @@ function requestAddressTransactions() {
             c_transactions[o_transaction.data.message] = o_transaction;
             console.log(o_transaction.data.message)
         }
-    })*/
+    })
 }
 
 async function requestNewDonations() {
@@ -76,10 +76,9 @@ async function requestNewDonations() {
     }
 }
 
-function loadDonationsDB() {
-    var donations = db.prepare("SELECT * FROM donations WHERE done IS null").all();
+async function loadDonationsDB() {
+    var donations = await db.prepare("SELECT * FROM donations WHERE done IS null").all();
     for (donation in donations) {
-
         var o_donation = new cl_donation(donations[donation]);
         c_donations[o_donation.data.nimiqmsg] = o_donation;
     }
@@ -89,7 +88,7 @@ function checkDonationArrived() {
     for (o_donation in c_donations) {
         if (c_transactions[c_donations[o_donation].data.nimiqmsg]) {
             var o_transaction = c_transactions[c_donations[o_donation].data.nimiqmsg];
-            console.log("Donation arrived!");
+            process.send("Donation arrived!");
             request.post({
                 url: `https://api.tipeeestream.com/v1.0/users/einfachalexyt/events.json?apiKey=${config.tipeeeapikey}&type=donation&params[username]=[Nimiq]${c_donations[o_donation].data.user}&params[amount]=${(o_transaction.data.value) / 10000 * nimiqusd}&params[currency]=USD`,
             }, function (err, response, body) {
@@ -101,14 +100,11 @@ function checkDonationArrived() {
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-if (!config.tipeeeapikey) {
+////////////////////////////////////////////////////////////////////////////////////////////////
+if (!config.tipeeeapikey || !config.nimiqxapikey || !config.address) {
     process.send(`[REDIRECT];${__dirname}/../setup/index.html`);
     return;
-} else {
-
 }
-
 
 requestNewDonations();
 requestAddressTransactions();
@@ -119,7 +115,7 @@ checkDonationArrived();
 setInterval(function () {
     requestNewDonations()
     requestAddressTransactions();
-    loadDonations();
-    requestNIMPriceDB();
+    loadDonationsDB();
+    requestNIMPrice();
     checkDonationArrived();
 }, 300000);
