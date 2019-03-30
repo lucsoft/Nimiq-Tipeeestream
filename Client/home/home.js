@@ -61,7 +61,7 @@ async function requestNewDonations() {
 
     var newDonations = await new Promise(function (resolve, reject) {
         //This api key has no function sorry :(
-        request.get(`http://localhost:3000/getnewdonations?apikey=71cdfa32087e4c9906d405c7de8baeeaeeefc6edc4513e157a7be1c958c0c7e9&date=${date[0].timestamp}`, function (err, response, body) {
+        request.get(`http://localhost:3000/getnewdonations?apikey=${config.einfachmcapikey}&date=${date[0].timestamp}`, function (err, response, body) {
             if (!err && response.statusCode == 200) {
                 resolve(body);
             } else {
@@ -101,7 +101,7 @@ function checkDonationArrived() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-if (!config.tipeeeapikey || !config.nimiqxapikey || !config.address) {
+if (!config.tipeeeapikey || !config.nimiqxapikey || !config.address || !config.einfachmcapikey || JSON.stringify(config).includes("undefined")) {
     process.send(`[REDIRECT];${__dirname}/../settings/index.html`);
     return;
 }
