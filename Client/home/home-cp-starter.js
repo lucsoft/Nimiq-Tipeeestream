@@ -9,6 +9,7 @@ child.on("message", function (msg) {
 })
 
 emitter.on('sync-complete', function (msg) {
+  document.getElementById("syncstatus").style.display = "none";
 })
 
 emitter.on('redirect', function (msg) {
